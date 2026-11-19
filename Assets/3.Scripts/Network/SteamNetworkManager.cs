@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using Steamworks;
 using Steamworks.Data;
@@ -119,7 +120,7 @@ namespace Bird.Networking
         }
         
         // ==========================================
-        // 참가자 (Client) - 로비 접속
+        // 참가자 (Client) - 로비 검색 및 접속
         // ==========================================
 
         /// <summary>
@@ -143,6 +144,22 @@ namespace Bird.Networking
             
             // 방장의 스팀 ID를 IP 주소처럼 사용하여 Fish-Net 클라이언트를 접속시킵니다.
             networkManager.ClientManager.StartConnection(hostAddress);
+        }
+
+        /// <summary>
+        /// 스팀 서버를 검색하여 우리 게임(BirdDefenseRPG)의 방 목록을 배열로 반환합니다.
+        /// </summary>
+        public async Task<Lobby[]> GetLobbyListAsync()
+        {
+            Debug.Log("스팀 로비 검색 중...");
+            
+            // 방 생성 시 문패에 적어두었던 GameID를 기준으로 '우리 게임 방'만 필터링해서 찾습니다.
+            Lobby[] lobbies = await SteamMatchmaking.LobbyList
+                .WithKeyValue("GameID", "BirdDefenseRPG")
+                .RequestAsync();
+            
+            // 방이 하나도 없다면 null이 반환되므로, 안전하게 빈 배열을 리턴하도록 처리합니다.
+            return lobbies ?? Array.Empty<Lobby>();
         }
         
         // ==========================================
